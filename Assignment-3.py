@@ -1,11 +1,11 @@
 import string
 import sys
 
-# Oyun sonucunu bir dosyaya yazmak için çıktıyı yönlendiriyoruz
+# Redirecting the output to write the game result to a file
 temp = sys.stdout
 sys.stdout = open('Battleship.out', 'w', encoding='utf-8')
 
-# Gemi türlerinin toplam sayısı ve uzunlukları belirlendi
+# Define the total number and lengths of ship types
 CARRIER_SIZE = 5
 CARRIER_COUNT = 1
 BATTLESHIP_SIZE = 4
@@ -21,7 +21,7 @@ ROW_LEN = 10
 COLUMN_LEN = 10
 EMPTY_PIECE = "-"
 
-# Gemi türleri bir sözlükte saklandı
+# Store ship types in a dictionary
 shipDict = {
     'P': PATROL_BOAT_SIZE,
     'C': CARRIER_SIZE,
@@ -30,7 +30,7 @@ shipDict = {
     'B': BATTLESHIP_SIZE,
 }
 
-# Her bir oyuncu için gemi türlerinin sayısını tutacak ayrı bir sözlük oluşturuldu
+# Create separate dictionaries to hold the count of ship types for each player
 shipCountDict_player1 = {
     'P': 0,
     'C': 0,
@@ -46,16 +46,16 @@ shipCountDict_player2 = {
     'B': 0,
 }
 
-# Dosyayı okumak için bir fonksiyon oluşturuldu
+# Function to read data from the file
 def dataReader(data):
     with open(data, "r") as file:
         return file.readlines()
 
-# Gizli oyun tahtasını oluşturmak için bir fonksiyon
+# Function to create a secret board for the game
 def create_secret_board(game_board):
     return [[EMPTY_PIECE for _ in range(COLUMN_LEN)] for _ in range(ROW_LEN)]
 
-# Dosyadan alınan girişi düzgün hale getirmek için bir fonksiyon oluşturuldu
+# Function to transform the input line from the file
 def transform_line(line: str):
     if len(line) == COLUMN_LEN:
         return line
@@ -67,7 +67,7 @@ def transform_line(line: str):
 
     return result
 
-# Seçilen koordinatta geminin olup olmadığını kontrol etmek için bir fonksiyon oluşturuldu
+# Function to check if there's a ship at the selected coordinate
 def is_ship(secret_game_board, game_board, shipType, direction, x, y):
     isShip = True
     shipLen = shipDict[shipType[0]]
@@ -90,7 +90,7 @@ def is_ship(secret_game_board, game_board, shipType, direction, x, y):
 
     return isShip
 
-# Gemilerin sayısını ayarlamak için bir fonksiyon oluşturuldu
+# Function to adjust the count of ships
 def shipCount(game_board, secret_game_board, player_shipCountDict):
     for i in range(COLUMN_LEN):
         for j in range(ROW_LEN):
@@ -105,20 +105,20 @@ def shipCount(game_board, secret_game_board, player_shipCountDict):
                             if is_ship(secret_game_board, game_board, game_board[i][j], "down", i, j):
                                 player_shipCountDict[game_board[i][j]] += 1
 
-# Koordinatları oyun tahtası değerlerine göre dönüştürmek için bir fonksiyon oluşturuldu
+# Function to convert coordinates to match game board values
 def convertCoordinates(coordinate):
     x_coordinate = int(coordinate.split(",")[0]) - 1
     y_coordinate = int(string.ascii_uppercase.index(coordinate.split(",")[1]))
 
     return x_coordinate, y_coordinate
 
-# Y koordinatını bir harfe dönüştürmek için bir fonksiyon oluşturuldu
+# Function to convert Y coordinate to a letter
 def convertLetter(x, y):
     x = x + 1
     y = string.ascii_uppercase[y]
     return f"{x},{y}"
 
-# Dosyayı işlemek için bir fonksiyon oluşturuldu
+# Function to process input file
 def processInputFile(player_input_data):
     try:
         with open(player_input_data, "r") as player_input_file:
@@ -129,7 +129,7 @@ def processInputFile(player_input_data):
         print(f"IOError: {player_input_data} file is not reachable.")
         sys.exit(1)
 
-# Oyun tahtasını oluşturmak için bir fonksiyon
+# Function to create the game board
 def create_game_board(filepath):
     try:
         with open(filepath, "r") as file:
@@ -147,7 +147,7 @@ def create_game_board(filepath):
         print(f"IOError: {filepath} file is not reachable.")
         sys.exit(1)
 
-# Oyun tahtalarını yazdırmak için bir fonksiyon
+# Function to print the game boards
 def print_boards(player1_game_board, player2_game_board):
     print("Player1's Hidden Board        Player2's Hidden Board")
     print("  ", *string.ascii_uppercase[:COLUMN_LEN], "       ", *string.ascii_uppercase[:COLUMN_LEN])
@@ -157,7 +157,7 @@ def print_boards(player1_game_board, player2_game_board):
         print(f"{rowIndex + 1:^2}", end=" ")
         print(*player2_game_board[rowIndex], sep=" ")
 
-# Vuruş işlemini gerçekleştirmek için bir fonksiyon
+# Function to perform the bombing action
 def bombing(coordinates_x, coordinates_y, enemy_game_board, enemy_secret_game_board):
     if enemy_game_board[coordinates_x][coordinates_y] == EMPTY_PIECE and enemy_secret_game_board[coordinates_x][coordinates_y] == EMPTY_PIECE:
         enemy_secret_game_board[coordinates_x][coordinates_y] = "O"
@@ -166,7 +166,7 @@ def bombing(coordinates_x, coordinates_y, enemy_game_board, enemy_secret_game_bo
         enemy_secret_game_board[coordinates_x][coordinates_y] = "X"
         return False
 
-# Oyunun ana işleyişini sağlamak için bir fonksiyon
+# Main function to handle the core functionality of the game
 def main():
     try:
         player1_game_board = create_game_board(sys.argv[1])
@@ -234,7 +234,7 @@ def main():
 
     print(f"\nPlayer {order} win")
 
-# Gemi sayılarını sıfırlamak için bir fonksiyon
+# Function to reset ship counts
 def reset_ship_counts(shipCountDict):
     shipCountDict['P'] = 0
     shipCountDict['B'] = 0
@@ -242,7 +242,7 @@ def reset_ship_counts(shipCountDict):
     shipCountDict['C'] = 0
     shipCountDict['D'] = 0
 
-# Gemi sayılarını yazdırmak için bir fonksiyon
+# Function to print ship counts
 def print_ship_counts(shipCountDict_player1, shipCountDict_player2):
     print("Carrier : \t" + "X" * shipCountDict_player1["C"] + "-" * (1 - shipCountDict_player1["C"]), end="\t\t")
     print("Carrier : \t" + "X" * shipCountDict_player2["C"] + "-" * (1 - shipCountDict_player2["C"]))
@@ -258,9 +258,9 @@ def print_ship_counts(shipCountDict_player1, shipCountDict_player2):
 if __name__ == "__main__":
     main()
 
-# Çıktıyı orijinal çıktıya geri yönlendiriyoruz
+# Redirecting the output to the original output
 sys.stdout = temp
 
-# Dosyadaki çıktıyı yazdırıyoruz
+# Printing the output from the file
 with open('Battleship.out', 'r') as file:
     print(*file.readlines())
